@@ -1,0 +1,67 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON File Display</title>
+</head>
+<body>
+
+<label for="dbUrl">Enter Database URL:</label>
+<input type="text" id="dbUrl" placeholder="Enter your database URL">
+<br>
+
+<input type="file" id="jsonFileInput" accept=".json">
+<pre id="jsonDisplay"></pre>
+<button id="sendDataButton">Send Data to Flask</button>
+
+<script>
+    document.getElementById('jsonFileInput').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const content = e.target.result;
+                displayJsonContent(content);
+            };
+
+            reader.readAsText(file);
+        }
+    }
+
+    function displayJsonContent(jsonContent) {
+        const jsonDisplay = document.getElementById('jsonDisplay');
+        jsonDisplay.textContent = jsonContent;
+    }
+
+    document.getElementById('sendDataButton').addEventListener('click', sendDataToFlask);
+
+    function sendDataToFlask() {
+        const jsonContent = document.getElementById('jsonDisplay').textContent;
+        const dbUrl = document.getElementById('dbUrl').value;
+
+        // Send an HTTP POST request to your Flask endpoint
+        fetch('/process_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ jsonContent, dbUrl }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response from Flask:', data);
+        })
+        .catch(error => console.error('Error sending data to Flask:', error));
+    }
+</script>
+
+</body>
+</html>

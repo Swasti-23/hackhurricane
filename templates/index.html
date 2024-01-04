@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
+  </head>
+  <body>
+    <div class="box-form">
+      <div class="left">
+        <div class="overlay">
+          <h1>App Name</h1>
+          <p id="slogan">
+            Slogan
+          </p>
+          <!--<span>
+            <p>Login with social media</p>
+            <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i> </a>
+            <a href="#"><i class="fa fa-google" aria-hidden="true" ></i> </a>
+          </span>-->
+        </div>
+      </div>
+      <div class="right">
+        <h5>Login</h5>
+        <p>
+          Don't have an account? <a href="/register">Creat Your Account</a> It takes
+          less than a minute!
+        </p>
+        <div class="inputs">
+          <form method="POST" action="/login">
+          <input id="email" type="text" placeholder="E-Mail" name = "email" required />
+          <br />
+          <input id="password" type="text" placeholder="Password" name="password" required />
+        </div>
+        <br /><br />
+        <!--<div class="remember-me--forget-password">
+          <label>
+            <input type="checkbox" name="item" checked />
+            <span class="text-checkbox">Remember me</span>
+          </label>
+          
+          <p>Forgot Password?</p>
+        </div>-->
+        <br />
+        <button class="submit" input type="submit" value="Login">Login</button>
+      </form>
+      </div>
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const a = document.getElementById('email');
+    const b = document.getElementById('password');
+
+    let email = '';
+    let password = '';
+
+    a.addEventListener('input', () => {
+        email = a.value;
+        updateLink();
+    });
+
+    b.addEventListener('input', () => {
+        password = b.value;
+        updateLink();
+    });
+
+    function updateLink() {
+        if (email !== '' && password !== '') {
+            const link = `${email}-${password}`;
+            console.log(link);
+
+            // Make a fetch call to your Flask API
+            callFlaskAPI(link);
+        }
+    }
+
+    function callFlaskAPI(link) {
+        // Specify the correct port if your Flask app is running on a different port
+        fetch(`http://localhost:5000/live/${link}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Check if the response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Handle non-JSON responses here (e.g., text, HTML)
+                    return response.text();
+                }
+            })
+            .then(data => {
+                // Handle the API response data here
+                handleApiResponse(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle the error here
+                handleApiError(error.message);
+            });
+    }
+
+    function handleApiResponse(data) {
+        // Assuming data is JSON, you can handle the response accordingly
+        console.log('API Response:', data);
+
+        // Example: Update the DOM based on the API response
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = `<p>API Response: ${JSON.stringify(data)}</p>`;
+    }
+
+    function handleApiError(errorMessage) {
+        // Handle the error, update the DOM, or display an alert
+        console.error('API Error:', errorMessage);
+
+        // Example: Update the DOM with the error message
+        const errorContainer = document.getElementById('error-container');
+        errorContainer.innerHTML = `<p>Error: ${errorMessage}</p>`;
+    }
+});
+
+    </script>
+  </body>
+</html>
